@@ -1,8 +1,9 @@
 package hello.core.singletonTest;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class SingletonServiceTest {
 
@@ -23,7 +24,7 @@ public class SingletonServiceTest {
         System.out.println("singletonService2 = " + singletonService2);
 
         // singletonService1 == singletonService2
-        Assertions.assertThat(singletonService1).isSameAs(singletonService2);
+        assertThat(singletonService1).isSameAs(singletonService2);
 
         singletonService1.logic();
     }
