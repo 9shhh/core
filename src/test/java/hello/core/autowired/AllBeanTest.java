@@ -30,14 +30,18 @@ public class AllBeanTest {
         assertThat(rateDiscountPrice).isEqualTo(2000);
     }
 
+    // 테스트를 위한 할인서비스 클래스를 내부에 새로 생성함.(기존 OrderService 를 손대지 않기 위함.)
     static class DiscountService {
         private final Map<String, DiscountPolicy> policyMap;
         private final List<DiscountPolicy> policies;
 
+        // 의존관계 자동 주입시 주입대상이 Map 이면, Map 에 지정된 특정 타입에 해당하는 빈을 다 조회하여 넣어주게 됨. (특정 타입 => DiscountPolicy)
+        // List 도 지정된 타입에 해당하는 빈을 다 조회하여 넣어줌.
         public DiscountService(Map<String, DiscountPolicy> policyMap, List<DiscountPolicy> policies) {
             this.policyMap = policyMap;
             this.policies = policies;
 
+            // 빈들이 잘 주입되었는지 확인.
             System.out.println("policyMap = " + policyMap);
             System.out.println("policies = " + policies);
         }
