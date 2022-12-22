@@ -1,13 +1,12 @@
 package hello.core.scope;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Scope;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.swing.plaf.PanelUI;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -38,25 +37,30 @@ public class singletonWithPrototypeTest1 {
 
         ClientBean clientBean2 = ac.getBean(ClientBean.class);
         int count2 = clientBean2.logic();
-        assertThat(count2).isEqualTo(2);
+        assertThat(count2).isEqualTo(1);
     }
 
     @Scope("singleton")
     static class ClientBean {
-        /**
-         * 싱글톤 빈은 생성 시점에만 의존관게를 주입 받기 떄문에 프로토타입 빈이 새로 생성되기는 하지만, 싱글톤 빈과 함께 계속 유지되는 것이 문제.
-         */
-        private final PrototypeBean prototypeBean; // 생성시점에 주입됨.
+        // ObjectProvider 를 따로 빈 등록 하지 않았지만, 스프링이 자동으로 만들어줌.
+        private final ObjectProvider<PrototypeBean> prototypeBeanObjectProvider;
 
-        @Autowired
-        public ClientBean(PrototypeBean prototypeBean) {
-            this.prototypeBean = prototypeBean;
+        public ClientBean(ObjectProvider<PrototypeBean> prototypeBeanObjectProvider) {
+            this.prototypeBeanObjectProvider = prototypeBeanObjectProvider;
         }
 
         public int logic() {
+            // getObject() 시 스프링 컨테이너에셔 프로토타입 빈을 찾아 반환해줌.
+            // ObjectProvider 스프링 컨테이너를 통한 Dependency LookUp 을 간단하게 할 수 있도록 도와주는거임. (프로토타입 전용으로 사용되는 것이 아님. 대리자 정도의 역할이라고 보면됨.)
+            PrototypeBean prototypeBean = prototypeBeanObjectProvider.getObject();
             prototypeBean.addCount();
             return prototypeBean.getCount();
         }
+
+        /**
+         * ObjectFactory<T>: 기능이 단순, 별도의 라이브러리 필요 없음, 스프링에 의존.
+         * ObjectProvider<T>: ObjectFactory 상속, 옵션, 스트림 처리 등 편의 기능이 많고, 별도의 라이브러리 필요 없음, 스프링에 의존.
+         */
     }
 
     @Scope("prototype")
